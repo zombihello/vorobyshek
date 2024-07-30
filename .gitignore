@@ -1,0 +1,7 @@
+# Binaries
+target/boot/*.bin
+disk.iso
+
+# Ignore toolchain
+tools/toolchain/autotools/
+tools/toolchain/gcc/
