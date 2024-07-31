@@ -13,16 +13,16 @@ OUTPUT_KERNEL 		= ${TARGET_DIR}/boot/kernel.bin
 
 # Toolchains and tools
 CC 					= ${TOOLS_DIR}/toolchain/gcc/bin/i686-elf-gcc
-LINK 				= ${TOOLS_DIR}/toolchain/gcc/bin/i686-elf-ld
+LINK 				= ${TOOLS_DIR}/toolchain/gcc/bin/i686-elf-gcc
 ASM 				= nasm
 QEMU 				= qemu-system-x86_64
 GRUB_MKRSC 			= grub-mkrescue
 
 # Compiler and tools flags
 ASMFLAGS 			= -f elf32
-CFLAGS 				= -c -ffreestanding -nostdlib -std=c99
+CFLAGS 				= -c -ffreestanding -nostdlib -std=c99 -Iinclude/
 LDFLAGS 			= -T link.ld -nostdlib
-LDLIBS 				=
+LDLIBS 				= -lgcc
 QEMUFLAGS 			=
 GRUB_MKRSCFLAGS 	= -d /usr/lib/grub/i386-pc
 
@@ -59,7 +59,7 @@ tools:
 	@${TOOLS_DIR}/toolchain/compile_toolchain.sh
 
 # Run QEMU
-qemu:
+qemu: kernel
 	${QEMU} ${QEMUFLAGS} -hda ${TARGET_ISO}
 
 # Clean

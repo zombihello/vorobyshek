@@ -1,9 +1,8 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include "graphics/console.h"
 
-void kernel_main() 
+void KernelMain() 
 {
-	uint16_t* 	pTerminalBuffer = ( uint16_t* )0xB8000;
-	pTerminalBuffer[0] = 'A' | 2 << 8;
+	ConsoleInit();
+	ConsoleSetColor( VGA_COLOR_RED, VGA_COLOR_WHITE );
+	ConsoleWrite( "Hello World!" );
 }

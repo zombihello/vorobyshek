@@ -23,7 +23,7 @@ tools:
 	@${MAKE} -C src/kernel tools
 
 # Run QEMU
-qemu:
+qemu: disk
 	@${MAKE} -C src/kernel qemu
 
 # Clean
