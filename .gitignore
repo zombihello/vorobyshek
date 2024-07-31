@@ -1,6 +1,7 @@
 # Binaries
+build/
 target/boot/*.bin
-disk.iso
+*.iso
 
 # Ignore toolchain
 tools/toolchain/autotools/

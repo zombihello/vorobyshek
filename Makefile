@@ -1,7 +1,7 @@
 all: disk
 
 # https://stackoverflow.com/questions/3931741/why-does-make-think-the-target-is-up-to-date
-.PHONY: disk tools verifytools qemu
+.PHONY: disk tools verifytools qemu clean
 
 # Build disk image
 disk_prepare: verifytools
@@ -25,3 +25,7 @@ tools:
 # Run QEMU
 qemu:
 	@${MAKE} -C src/kernel qemu
+
+# Clean
+clean:
+	@${MAKE} -C src/kernel clean
