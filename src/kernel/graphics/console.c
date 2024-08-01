@@ -7,53 +7,92 @@
 static size_t 		s_ConsoleRow 		= 0;
 static size_t 		s_ConsoleColumn 	= 0;
 static uint8_t 		s_ConsoleColor 		= VGA_MAKE_COLOR( VGA_COLOR_WHITE, VGA_COLOR_BLACK );
-static uint16_t* 	s_pConsoleBuffer 	= VGA_MEMORY;
 
-void ConsoleInit()
+void console_init()
 {
-	ConsoleClear();
+	console_clear();
 }
 
-void ConsoleClear()
+void console_clear()
 {
 	s_ConsoleRow 		= 0;
 	s_ConsoleColumn 	= 0;
-	for ( size_t y = 0; y < VGA_HEIGHT; ++y )
+	for ( size_t y = 0; y < g_VGAFrameBuffer.height; ++y )
 	{
-		for ( size_t x = 0; x < VGA_WIDTH; ++x )
+		for ( size_t x = 0; x < g_VGAFrameBuffer.width; ++x )
 		{
-			s_pConsoleBuffer[y * VGA_WIDTH + x] = VGA_MAKE_CHAR( ' ', s_ConsoleColor );
+			g_VGAFrameBuffer.address[y * g_VGAFrameBuffer.width + x] = VGA_MAKE_CHAR( ' ', s_ConsoleColor );
 		}
 	}
 }
 
-void ConsoleSetColor( vgaColor_t textColor, vgaColor_t backgroundColor )
+void console_set_color( vgaColor_t textColor, vgaColor_t backgroundColor )
 {
 	s_ConsoleColor = VGA_MAKE_COLOR( textColor, backgroundColor );
 }
 
-void ConsolePutCharAt( char c, vgaColor_t textColor, vgaColor_t backgroundColor, size_t x, size_t y )
+void console_put_char_at( char c, vgaColor_t textColor, vgaColor_t backgroundColor, size_t x, size_t y )
 {
-	s_pConsoleBuffer[y * VGA_WIDTH + x] = VGA_MAKE_CHAR( c, VGA_MAKE_COLOR( textColor, backgroundColor ) );
+	g_VGAFrameBuffer.address[y * g_VGAFrameBuffer.width + x] = VGA_MAKE_CHAR( c, VGA_MAKE_COLOR( textColor, backgroundColor ) );
 }
 
-void ConsolePutChar( char c )
+static void console_scroll( size_t line )
 {
-	s_pConsoleBuffer[s_ConsoleRow * VGA_WIDTH + s_ConsoleColumn] = VGA_MAKE_CHAR( c, s_ConsoleColor );
-	if ( ++s_ConsoleColumn >= VGA_WIDTH )
+	uint16_t* 	pCurAddress 	= g_VGAFrameBuffer.address + line * g_VGAFrameBuffer.width;
+	uint16_t* 	pEndAddress 	= pCurAddress + g_VGAFrameBuffer.width;
+	while( pCurAddress != pEndAddress )
 	{
-		s_ConsoleColumn = 0;
-		if ( ++s_ConsoleRow >= VGA_HEIGHT )
-		{
-			s_ConsoleRow = 0;
-		}
+		uint16_t 	data = *pCurAddress;
+		*( pCurAddress - g_VGAFrameBuffer.width ) = data;
+		++pCurAddress;
 	}
 }
 
-void ConsoleWrite( const char *pStr )
+static void console_delete_last_line()
 {
-	for ( size_t index = 0; pStr[index] != '\0'; ++index )
+	uint16_t* 	pCurAddress = g_VGAFrameBuffer.address + ( g_VGAFrameBuffer.height-1 ) * g_VGAFrameBuffer.width;
+	for ( size_t x = 0; x < g_VGAFrameBuffer.width; ++x, ++pCurAddress )
 	{
-		ConsolePutChar( pStr[index] );
+		*pCurAddress = VGA_MAKE_CHAR( ' ', s_ConsoleColor );
+	}
+}
+
+void console_put_char( char c )
+{
+	if ( s_ConsoleColumn >= g_VGAFrameBuffer.width )
+	{
+		s_ConsoleColumn = 0;
+		++s_ConsoleRow;
+	}
+
+	if ( s_ConsoleRow >= g_VGAFrameBuffer.height )
+	{
+		for ( size_t line = 1; line <= g_VGAFrameBuffer.height - 1; ++line )
+		{
+			console_scroll( line );
+		}
+		
+		console_delete_last_line();
+		s_ConsoleRow = g_VGAFrameBuffer.height-1;
+	}
+
+	switch ( c )
+	{
+	case '\n':
+		++s_ConsoleRow;
+		s_ConsoleColumn = 0;
+		break;
+
+	case '\t':
+		for ( int index = 0; index < 4; index++ )
+		{
+			console_put_char( ' ' );
+		}
+		break;
+
+	default:
+		g_VGAFrameBuffer.address[s_ConsoleRow * g_VGAFrameBuffer.width + s_ConsoleColumn] = VGA_MAKE_CHAR( c, s_ConsoleColor );
+		++s_ConsoleColumn;
+		break;
 	}
 }

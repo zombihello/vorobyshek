@@ -1,24 +1,21 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "graphics/vga.h"
+#include "drivers/vga.h"
 
 // Initialize console
-void 	ConsoleInit();
+void 	console_init();
 
 // Clear console
-void 	ConsoleClear();
+void 	console_clear();
 
 // Set current console color
-void 	ConsoleSetColor( vgaColor_t textColor, vgaColor_t backgroundColor );
+void 	console_set_color( vgaColor_t textColor, vgaColor_t backgroundColor );
 
 // Put char at same position and with same color
-void 	ConsolePutCharAt( char c, vgaColor_t textColor, vgaColor_t backgroundColor, size_t x, size_t y );
+void 	console_put_char_at( char c, vgaColor_t textColor, vgaColor_t backgroundColor, size_t x, size_t y );
 
 // Put char at current position and with current color
-void 	ConsolePutChar( char c );
-
-// Write string at current position
-void 	ConsoleWrite( const char* pStr );
+void 	console_put_char( char c );
 
 #endif // !CONSOLE_H

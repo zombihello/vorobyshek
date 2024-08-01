@@ -2,15 +2,7 @@
 #define VGA_H
 
 #include <stddef.h>
-
-// Screen width in hardware text mode
-#define VGA_WIDTH 										80
-
-// Screen height in hardware text mode
-#define VGA_HEIGHT 										25
-
-// Screen memory in hardware text mode
-#define VGA_MEMORY 										( ( uint16_t* )0xB8000 )
+#include <stdint.h>
 
 // Macro to make VGA color
 #define VGA_MAKE_COLOR( textColor, backgroundColor ) 	( textColor | backgroundColor << 4 )
@@ -38,5 +30,14 @@ typedef enum
 	VGA_COLOR_LIGHT_BROWN 	= 14,
 	VGA_COLOR_WHITE 		= 15
 } vgaColor_t;
+
+// Hardware text mode information
+typedef struct
+{
+	size_t 		width;
+	size_t 		height;
+	uint16_t* 	address;
+} vgaFrameBuffer_t;
+extern vgaFrameBuffer_t 	g_VGAFrameBuffer;
 
 #endif // !VGA_H
