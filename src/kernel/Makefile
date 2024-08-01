@@ -23,7 +23,7 @@ ASMFLAGS 			= -f elf32
 CFLAGS 				= -c -ffreestanding -nostdlib -std=c99 -Iinclude/
 LDFLAGS 			= -T link.ld -nostdlib
 LDLIBS 				= -lgcc
-QEMUFLAGS 			=
+QEMUFLAGS 			= -serial stdio
 GRUB_MKRSCFLAGS 	= -d /usr/lib/grub/i386-pc
 
 # Grab all source files

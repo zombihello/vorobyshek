@@ -17,6 +17,6 @@ section .text
 global start
 extern kernel_main 					; This function is gonna be located in our C code (kernel.c)
 start:
-	cli 							; Clears the interrupts
 	call kernel_main 				; Send processor to continue execution from the kernel_main function in C code
+	cli 							; Clears the interrupts
 	hlt 							; Halt the CPU (pause it from executing from this address)
