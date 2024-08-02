@@ -2,7 +2,7 @@
 #include "system/hal.h"
 #include "graphics/console.h"
 #include "utils/printf.h"
-
+#include "arch/i686/pic.h"
 void kernel_main()
 {	
 	// Initialize the system
@@ -14,4 +14,5 @@ void kernel_main()
 	console_set_color( VGA_COLOR_RED, VGA_COLOR_WHITE );
 	printf( "Hello World\n" );
 	debugf( "Serial Port HELLO!\n" );
+	while(1);
 }

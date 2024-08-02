@@ -8,7 +8,7 @@
 // -------------
 // GLOBALS
 // -------------
-static isrHandlerFn_t 		s_pISRHandlers[MAX_IDT_ENTRIES];
+static isrHandlerFn_t 		s_pISRHandlers[IDT_MAX_ENTRIES];
 static const char* 			s_pExceptionsMsg[] = 
 {
     "Divide by zero error",
@@ -50,7 +50,7 @@ void i686_isr_init()
 {
 	debugf( "[isr] Initialize Interrupt Service Routine\n" );
 	i686_isr_gates_init();
-	for ( int index = 0; index < MAX_IDT_ENTRIES; ++index )
+	for ( int index = 0; index < IDT_MAX_ENTRIES; ++index )
 	{
 		i686_idt_enable_gate( index );
 	}
@@ -72,7 +72,7 @@ void i686_isr_handler( isrRegisters_t* pISRRegisters )
 	// If we have interrupt number more or equal to 32 is is unhandled interrupt
 	else if ( pISRRegisters->interrupt >= 32 )
 	{
-		debugf( "[isr_handler] Unhandled interrupt 0x%X\n", pISRRegisters->interrupt );
+		debugf( "[isr] Unhandled interrupt 0x%X\n", pISRRegisters->interrupt );
 	}
 	// Otherwise it is critical exception
 	else

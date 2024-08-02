@@ -1,4 +1,7 @@
-#include "arch/i686/port.h"
+#include "arch/i686/io.h"
+
+// Unused port to IO wait
+#define UNUSED_IO_PORT 			0x80
 
 uint8_t i686_inportb( uint16_t port )
 {
@@ -34,4 +37,9 @@ void i686_outportw( uint16_t port, uint16_t data )
 void i686_outportl( uint16_t port, uint32_t data )
 {
 	__asm__ __volatile__( "outl %%eax, %%dx" : : "d"( port ), "a"( data ) );
+}
+
+void i686_iowait()
+{
+	i686_outportb( UNUSED_IO_PORT, 0x00 );
 }

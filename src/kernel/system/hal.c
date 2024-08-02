@@ -2,11 +2,12 @@
 
 // Build kernel for i686 architecture
 #ifdef CPU_ARCH_I686
-	#include "arch/i686/port.h"
+	#include "arch/i686/io.h"
 	#include "arch/i686/gdt.h"
 	#include "arch/i686/idt.h"
 	#include "arch/i686/isr.h"
-	#include "arch/i686/panic.h"
+	#include "arch/i686/cpu.h"
+	#include "arch/i686/irq.h"
 #else
 	#error Unknown CPU architecture
 #endif // CPU_ARCH_I686
@@ -17,6 +18,7 @@ void hal_init()
 	i686_gdt_init();
 	i686_idt_init();
 	i686_isr_init();
+	i686_irq_init();
 #else
 	#error Unknown CPU architecture
 #endif // CPU_ARCH_I686
@@ -79,10 +81,37 @@ void hal_outportl( uint16_t port, uint32_t data )
 #endif // CPU_ARCH_I686
 }
 
+void hal_iowait()
+{
+#ifdef CPU_ARCH_I686
+	i686_iowait();
+#else
+	#error Unknown CPU architecture
+#endif // CPU_ARCH_I686
+}
+
 void hal_panic()
 {
 #ifdef CPU_ARCH_I686
 	i686_panic();
+#else
+	#error Unknown CPU architecture
+#endif // CPU_ARCH_I686
+}
+
+void hal_enable_interrupts()
+{
+#ifdef CPU_ARCH_I686
+	i686_enable_interrupts();
+#else
+	#error Unknown CPU architecture
+#endif // CPU_ARCH_I686
+}
+
+void hal_disable_interrupts()
+{
+#ifdef CPU_ARCH_I686
+	i686_disable_interrupts();
 #else
 	#error Unknown CPU architecture
 #endif // CPU_ARCH_I686

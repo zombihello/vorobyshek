@@ -1,5 +1,5 @@
-#ifndef ARCH_I686_PORT_H
-#define ARCH_I686_PORT_H
+#ifndef ARCH_I686_IO_H
+#define ARCH_I686_IO_H
 
 #include <stdint.h>
 
@@ -13,4 +13,7 @@ void 		i686_outportb( uint16_t port, uint8_t data );
 void 		i686_outportw( uint16_t port, uint16_t data );
 void 		i686_outportl( uint16_t port, uint32_t data );
 
-#endif // !ARCH_I686_PORT_H
+// IO wait
+void 		i686_iowait();
+
+#endif // !ARCH_I686_IO_H

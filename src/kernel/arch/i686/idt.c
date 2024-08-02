@@ -19,7 +19,7 @@ typedef struct
 } __attribute__( ( packed ) ) idtDescriptor_t;
 
 // Interrupt Descriptor Table
-idtEntry_t 			s_IDT[MAX_IDT_ENTRIES];
+idtEntry_t 			s_IDT[IDT_MAX_ENTRIES];
 
 // IDT descriptor
 idtDescriptor_t 	s_IDTDescriptor =
@@ -52,7 +52,6 @@ void i686_idt_init()
 	debugf( "[idt] Initialize Interrupt Descriptor Table\n" );
 	__asm__ __volatile__(
 			"lidt %0\n\t" 		// Load IDT
-			"sti\n\t" 			// Set interrupt flag
 			:
 			: "m"( s_IDTDescriptor )
 			: "memory"
