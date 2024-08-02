@@ -25,6 +25,14 @@ void console_clear()
 	}
 }
 
+void console_clear_line( size_t line )
+{
+	for ( size_t x = 0; x < g_VGAFrameBuffer.width; ++x )
+	{
+		g_VGAFrameBuffer.address[line * g_VGAFrameBuffer.width +x] = VGA_MAKE_CHAR( ' ', s_ConsoleColor );
+	}
+}
+
 void console_set_color( vgaColor_t textColor, vgaColor_t backgroundColor )
 {
 	s_ConsoleColor = VGA_MAKE_COLOR( textColor, backgroundColor );

@@ -16,4 +16,7 @@ void 		hal_outportb( uint16_t port, uint8_t data );
 void 		hal_outportw( uint16_t port, uint16_t data );
 void 		hal_outportl( uint16_t port, uint32_t data );
 
+// Halt the CPU
+void 		hal_panic();
+
 #endif // !HAL_H

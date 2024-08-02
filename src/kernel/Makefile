@@ -6,10 +6,17 @@ OS_NAME 			= vorobyshek
 TOOLS_DIR 			= ../../tools
 TARGET_DIR			= ../../target
 BUILD_DIR 			= ../../build
+GEN_DIR 			= ${BUILD_DIR}/__gen__
 
 # File names
 TARGET_ISO 			= ../../${OS_NAME}-${OS_VER}.iso
 OUTPUT_KERNEL 		= ${TARGET_DIR}/boot/kernel.bin
+
+# Generated files
+C_ISRS_GEN_FILE 	= ${GEN_DIR}/arch/i686/isrs_gen.c
+ASM_ISRS_GEN_FILE 	= ${GEN_DIR}/arch/i686/isrs_gen.asm.inc
+C_GEN_FILES 		= ${C_ISRS_GEN_FILE}
+ASM_GEN_FILES 		= ${ASM_ISRS_GEN_FILE}
 
 # Toolchains and tools
 CC 					= ${TOOLS_DIR}/toolchain/gcc/bin/i686-elf-gcc
@@ -19,10 +26,10 @@ QEMU 				= qemu-system-x86_64
 GRUB_MKRSC 			= grub-mkrescue
 
 # Compiler and tools flags
-ASMFLAGS 			= -f elf32
+ASMFLAGS 			= -f elf32 -I./ -I${GEN_DIR}/
 CFLAGS_DEBUG 		= -O0 -g
 CFLAGS_RELEASE 		= -O2 -s -DNDEBUG 		# TODO yehor.pohuliaka - Add support Debug and Release configurations
-CFLAGS 				= ${CFLAGS_DEBUG} -c -ffreestanding -nostdlib -std=c99 -I./ -DCPU_ARCH_I686
+CFLAGS 				= ${CFLAGS_DEBUG} -c -ffreestanding -nostdlib -std=c99 -I./ -I${GEN_DIR}/ -DCPU_ARCH_I686
 LDFLAGS 			= -T link.ld -nostdlib
 LDLIBS 				= -lgcc
 QEMUFLAGS 			= -serial stdio -m 4g
@@ -30,15 +37,20 @@ QEMUFLAGS_DEBUG 	= ${QEMUFLAGS} -s -S -no-shutdown -no-reboot
 GRUB_MKRSCFLAGS 	= -d /usr/lib/grub/i386-pc
 
 # Grab all source files
-C_SRC 				:= ${shell find . -name '*.c' -printf "%P\n"}
+C_SRC 				:= ${shell find . -name '*.c' -printf "%P\n"} ${C_GEN_FILES} 
 ASM_SRC 			:= ${shell find . -name '*.asm' -printf "%P\n"}
 C_OBJS 				:= ${patsubst %.c, ${BUILD_DIR}/%.o, ${C_SRC}}
 ASM_OBJS 			:= ${patsubst %.asm, ${BUILD_DIR}/%.asm.o, ${ASM_SRC}}
 
 .PHONY: clean
 
+# Generate code to build kernel (ISRs and other stuff)
+kernel_gencode:
+	@chmod +x ${TOOLS_DIR}/kernel/generate_isrs.sh
+	@${TOOLS_DIR}/kernel/generate_isrs.sh i686 ${C_ISRS_GEN_FILE} ${ASM_ISRS_GEN_FILE}
+
 # Build kernel
-kernel: $(C_OBJS) $(ASM_OBJS)
+kernel: kernel_gencode $(C_OBJS) $(ASM_OBJS)
 	@mkdir -p ${TARGET_DIR}
 	@mkdir -p ${TARGET_DIR}/boot
 	${LINK} ${LDFLAGS} -o ${OUTPUT_KERNEL} ${C_OBJS} ${ASM_OBJS} ${LDLIBS}
@@ -71,5 +83,6 @@ qemu_dbg: kernel
 
 # Clean
 clean:
+	@rm -rf ${GEN_DIR}
 	@rm -rf ${BUILD_DIR}
 	@rm -rf ${TARGET_ISO}

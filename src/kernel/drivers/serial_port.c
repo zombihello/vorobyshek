@@ -18,7 +18,7 @@ static void serial_enable_port( uint16_t port )
 
 void serial_init()
 {
-	debugf( "[serial_port] Init serial ports\n" );
+	debugf( "[serial_port] Initialize serial ports\n" );
 	serial_enable_port( COM1_PORT );
 	hal_outportb( COM1_PORT + 1, 0x01 ); 		// Enable interrupt of recevied data
 }

@@ -104,7 +104,7 @@ static gdtDescriptor_t 		s_GDTDescriptor =
 // Initialize Global Descriptor Table
 void i686_gdt_init()
 {
-	debugf( "[gdt]: Initialize Global Descriptor Table\n" );
+	debugf( "[gdt] Initialize Global Descriptor Table\n" );
 	__asm__ __volatile__(
 			"lgdt %0\n\t" 							// Load GDT
 			"ljmp %1, $.reload_cs\n\t" 				// Do far jump to reload CS. At %1 we have kernel code segment (offset to GDT entry. [0] = 0, [1] = 0x08, [2] = 0x10, etc)

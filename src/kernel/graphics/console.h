@@ -16,6 +16,9 @@ void 					console_init();
 // Clear console
 void 					console_clear();
 
+// Clear specific line in console
+void 					console_clear_line( size_t line );
+
 // Set current console color
 void 					console_set_color( vgaColor_t textColor, vgaColor_t backgroundColor );
 

@@ -8,7 +8,7 @@ typedef struct
 	uint16_t 		segmenSelector; 	// The GDT segment selector that the CPU will load into CS before calling the ISR
 	uint8_t 		reserved; 			// Set to zero
 	uint8_t 		flags; 				// Type and attributes
-	uint8_t 		isrHeigh; 			// The higher 16 bits of the ISR's address
+	uint16_t 		isrHeigh; 			// The higher 16 bits of the ISR's address
 } __attribute__( ( packed ) ) idtEntry_t;
 
 // Descriptor of Interrupt Descriptor Table
@@ -19,10 +19,10 @@ typedef struct
 } __attribute__( ( packed ) ) idtDescriptor_t;
 
 // Interrupt Descriptor Table
-idtEntry_t 		s_IDT[256];
+idtEntry_t 			s_IDT[MAX_IDT_ENTRIES];
 
 // IDT descriptor
-idtDescriptor_t 		s_IDTDescriptor =
+idtDescriptor_t 	s_IDTDescriptor =
 {
 	.limit 	= sizeof( s_IDT ) - 1,
 	.pPtr 	= s_IDT

@@ -1,6 +1,7 @@
 #include <stdarg.h>
 
 #include "drivers/serial_port.h"
+#include "system/hal.h"
 #include "graphics/console.h"
 #include "memory/memory.h"
 #include "utils/printf.h"
@@ -11,18 +12,28 @@
 
 void panic( const char* pFormat, ... )
 {
-	// Initialize console to print panic message
+	// Initialize console to print panic message	
 	const size_t 			centerWidth 		= g_VGAFrameBuffer.width / 2;
-	const size_t 			centerHeight 		= g_VGAFrameBuffer.height / 2;
 	consoleCursorPos_t 		cursorPosition 		= 
 	{ 
 		.x = centerWidth - 4,
-		.y = centerHeight
+		.y = 0 
 	};
-	
-	console_set_color( VGA_COLOR_WHITE, VGA_COLOR_BLUE );
+
+	// Clear console
+	console_set_color( VGA_COLOR_WHITE, VGA_COLOR_BLACK );
 	console_clear();
-	console_set_color( VGA_COLOR_BLUE, VGA_COLOR_WHITE );	
+	
+	// Print panic header
+	console_set_color( VGA_COLOR_RED, VGA_COLOR_WHITE );
+	console_clear_line( 0  );
+	console_set_cursor_pos( cursorPosition );
+	printf( "PANIC!" );
+	console_set_color( VGA_COLOR_WHITE, VGA_COLOR_BLACK );
+
+	// Set cursor position at (0,2) line
+	cursorPosition.x = 0;
+	cursorPosition.y = 2;
 	console_set_cursor_pos( cursorPosition );
 
 	// Print panic message into serial port and on console
@@ -40,18 +51,10 @@ void panic( const char* pFormat, ... )
 	{
 		pPanicMessage = "Unknown error";
 	}
-	debugf( "[panic] %s\n", pPanicMessage );
 	
-	printf( "  PANIC!  \n" );
-	cursorPosition 		= console_get_cursor_pos();
-	cursorPosition.x 	= centerWidth - strlen( pPanicMessage ) / 2;
-	console_set_cursor_pos( cursorPosition );
+	debugf( "[panic] %s\n", pPanicMessage );	
 	printf( "%s", pPanicMessage );
 
-	// Halt CPU
-	__asm__ __volatile__
-	( 
-		"cli\n\t"
-		"hlt\n\t"
-	);
+	// Halt the CPU
+	hal_panic();
 }

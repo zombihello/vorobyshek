@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+// Maximum count of Interrupt Descriptor Table entries
+#define MAX_IDT_ENTRIES 			256
+
 // Interrupt Descriptor Table flags
 typedef enum
 {

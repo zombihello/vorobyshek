@@ -1,2 +1,3 @@
 -I./
+-I./../../build/gen/
 -DCPU_ARCH_I686
