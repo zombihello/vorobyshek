@@ -1,1 +1,2 @@
--I./include/
+-I./
+-DCPU_ARCH_I686

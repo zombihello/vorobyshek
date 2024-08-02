@@ -38,7 +38,7 @@
  */
 
 // yehor.pohuliaka - BEGIN
-#include "utilities/printf.h"
+#include "utils/printf.h"
 #include "graphics/console.h"
 
 void putchar_( char c )

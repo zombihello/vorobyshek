@@ -22,7 +22,7 @@ GRUB_MKRSC 			= grub-mkrescue
 ASMFLAGS 			= -f elf32
 CFLAGS_DEBUG 		= -O0 -g
 CFLAGS_RELEASE 		= -O2 -s -DNDEBUG 		# TODO yehor.pohuliaka - Add support Debug and Release configurations
-CFLAGS 				= ${CFLAGS_DEBUG} -c -ffreestanding -nostdlib -std=c99 -Iinclude/
+CFLAGS 				= ${CFLAGS_DEBUG} -c -ffreestanding -nostdlib -std=c99 -I./ -DCPU_ARCH_I686
 LDFLAGS 			= -T link.ld -nostdlib
 LDLIBS 				= -lgcc
 QEMUFLAGS 			= -serial stdio -m 4g
