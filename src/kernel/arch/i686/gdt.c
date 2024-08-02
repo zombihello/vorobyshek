@@ -17,7 +17,7 @@ typedef struct
 // GDT descriptor
 typedef struct
 {
-	uint16_t 		limit; 			// Size of global descriptor table minus 1
+	uint16_t 		limit; 			// The size of the table in bytes subtracted by 1 
 	gdtEntry_t* 	pPtr; 			// Address of GDT
 } __attribute__( ( packed ) ) gdtDescriptor_t;
 

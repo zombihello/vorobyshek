@@ -1,7 +1,6 @@
 #include "drivers/serial_port.h"
 #include "system/hal.h"
 #include "graphics/console.h"
-#include "system/panic.h"
 #include "utils/printf.h"
 
 void kernel_main()

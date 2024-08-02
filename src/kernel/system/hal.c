@@ -4,6 +4,7 @@
 #ifdef CPU_ARCH_I686
 	#include "arch/i686/port.h"
 	#include "arch/i686/gdt.h"
+	#include "arch/i686/idt.h"
 #else
 	#error Unknown CPU architexture
 #endif // CPU_ARCH_I686
@@ -12,6 +13,7 @@ void hal_init()
 {
 #ifdef CPU_ARCH_I686
 	i686_gdt_init();
+	i686_idt_init();
 #else
 	#error Unknown CPU architexture
 #endif // CPU_ARCH_I686
