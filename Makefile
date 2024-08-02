@@ -26,6 +26,10 @@ tools:
 qemu: disk
 	@${MAKE} -C src/kernel qemu
 
+# Run QEMU for debug
+qemu_dbg: disk
+	@${MAKE} -C src/kernel qemu_dbg
+
 # Clean
 clean:
 	@${MAKE} -C src/kernel clean

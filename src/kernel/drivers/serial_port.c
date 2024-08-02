@@ -4,7 +4,7 @@
 #include "cpu/cpu.h"
 #include "utilities/printf.h"
 
-void serial_enable_port( uint16_t port )
+static void serial_enable_port( uint16_t port )
 {
 	outportb( port + 1, 0x00 ); 	// Disable all interrupts
 	outportb( port + 3, 0x80 ); 	// Enable DLAB (set boud rate divisor)
@@ -13,6 +13,7 @@ void serial_enable_port( uint16_t port )
 	outportb( port + 3, 0x03 ); 	// 8 bits, no parity, one stop bit
 	outportb( port + 2, 0xC7 ); 	// Enable FIFO, clear them, with 14-byte threshold
 	outportb( port + 4, 0x0B ); 	// IRQs enabled, RTS/DSR set
+	debugf( "[serial_port] Enabled serial port 0x%X\n", port );
 }
 
 void serial_init()
@@ -22,14 +23,9 @@ void serial_init()
 	outportb( COM1_PORT + 1, 0x01 ); 		// Enable interrupt of recevied data
 }
 
-static inline uint8_t serial_transmit_empty( uint16_t port )
-{
-	return serial_recv_status( port ) & 0x20;
-}
-
 void serial_send( uint16_t port, uint8_t data )
 {
-	while ( !serial_transmit_empty( port ) );
+	while ( !( serial_recv_status( port ) & 0x20 ) );
 	outportb( port, data );
 }
 

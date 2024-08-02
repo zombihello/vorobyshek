@@ -20,10 +20,13 @@ GRUB_MKRSC 			= grub-mkrescue
 
 # Compiler and tools flags
 ASMFLAGS 			= -f elf32
-CFLAGS 				= -c -ffreestanding -nostdlib -std=c99 -Iinclude/
+CFLAGS_DEBUG 		= -O0 -g
+CFLAGS_RELEASE 		= -O2 -s -DNDEBUG 		# TODO yehor.pohuliaka - Add support Debug and Release configurations
+CFLAGS 				= ${CFLAGS_DEBUG} -c -ffreestanding -nostdlib -std=c99 -Iinclude/
 LDFLAGS 			= -T link.ld -nostdlib
 LDLIBS 				= -lgcc
-QEMUFLAGS 			= -serial stdio
+QEMUFLAGS 			= -serial stdio -m 4g
+QEMUFLAGS_DEBUG 	= ${QEMUFLAGS} -s -S -no-shutdown -no-reboot
 GRUB_MKRSCFLAGS 	= -d /usr/lib/grub/i386-pc
 
 # Grab all source files
@@ -61,6 +64,10 @@ tools:
 # Run QEMU
 qemu: kernel
 	${QEMU} ${QEMUFLAGS} -hda ${TARGET_ISO}
+
+# Run QEMU for debug
+qemu_dbg: kernel
+	${QEMU} ${QEMUFLAGS_DEBUG} -hda ${TARGET_ISO}
 
 # Clean
 clean:
