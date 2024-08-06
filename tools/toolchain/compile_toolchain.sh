@@ -1,15 +1,26 @@
 #!/usr/bin/bash
-set -x 		# Show commands
 set -e 		# Fail globally
+
+# Print usage
+if [ $# -le 0 ]; then
+	echo "Usage: compile_toolchain.sh <arch>"
+	echo "Avaiable architectures:"
+	echo " i686"
+	echo " x86_64"
+	exit 1
+fi
 
 # Set current directory at tools/toolchain
 SCRIPT=$(realpath "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 cd "${SCRIPTPATH}"
 
+# Script arguments
+TARGET_ARCH=$1
+
 # Modify environment veriables
-export PREFIX="$SCRIPTPATH/gcc/"
-export TARGET=i686-elf
+export PREFIX="$SCRIPTPATH/${TARGET_ARCH}-gcc/"
+export TARGET=${TARGET_ARCH}-elf
 export PATH="$PREFIX/bin:$SCRIPTPATH/autotools/bin:$PATH"
 
 mkdir -p "$PREFIX"
@@ -21,7 +32,7 @@ if ! test -f "$SCRIPTPATH/autotools/bin/automake"; then
 fi
 
 # Compile binutils/gcc if it need
-if ! [ -f "$SCRIPTPATH/gcc/bin/i686-elf-ld" ] || ! [ -f "$SCRIPTPATH/gcc/bin/i686-elf-gcc" ]; then
+if ! [ -f "$SCRIPTPATH/${TARGET_ARCH}-gcc/bin/${TARGET}-ld" ] || ! [ -f "$SCRIPTPATH/${TARGET_ARCH}-gcc/bin/${TARGET}-gcc" ]; then
 	mkdir -p tmp_compile_toolchain
 	cd tmp_compile_toolchain
 	

@@ -6,6 +6,7 @@ if [ $# -le 1 ]; then
 	echo "Usage: generate_isrs.sh <arch> <isrs_gen.c> <isrs_gen.asm.inc>"
 	echo "Avaiable architectures:"
 	echo " i686"
+	exit 1
 fi
 
 # Variables
@@ -44,7 +45,7 @@ echo "//" >> $ISRS_GEN_C
 echo "void i686_isr_gates_init()" >> $ISRS_GEN_C
 echo "{" >> $ISRS_GEN_C
 for index in $( seq 0 255 ); do
-	echo "    i686_idt_set_gate( ${index}, i686_isr_stub_${index}, GDT_KERNEL_CODE_SEGMENT, IDT_FLAG_RING0 | IDT_FLAG_GATE_32BIT_INTERRUPT );" >> $ISRS_GEN_C
+	echo "    i686_idt_set_gate( ${index}, i686_isr_stub_${index}, GDT_KERNEL_CODE_SEGMENT, IDT_FLAG_RING0 | IDT_FLAG_GATE_32_64BIT_INTERRUPT );" >> $ISRS_GEN_C
 done
 echo "}" >> $ISRS_GEN_C
 

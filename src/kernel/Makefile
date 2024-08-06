@@ -19,22 +19,23 @@ C_GEN_FILES 		= ${C_ISRS_GEN_FILE}
 ASM_GEN_FILES 		= ${ASM_ISRS_GEN_FILE}
 
 # Toolchains and tools
-CC 					= ${TOOLS_DIR}/toolchain/gcc/bin/i686-elf-gcc
-LINK 				= ${TOOLS_DIR}/toolchain/gcc/bin/i686-elf-gcc
+CC 					= ${TOOLS_DIR}/toolchain/x86_64-gcc/bin/x86_64-elf-gcc
+LINK 				= ${TOOLS_DIR}/toolchain/x86_64-gcc/bin/x86_64-elf-gcc
 ASM 				= nasm
 QEMU 				= qemu-system-x86_64
-GRUB_MKRSC 			= grub-mkrescue
 
 # Compiler and tools flags
-ASMFLAGS 			= -f elf32 -I./ -I${GEN_DIR}/
+ASMFLAGS 			= -f elf64 -I./ -I${GEN_DIR}/ -DCPU_ARCH_AMD64 -g -F dwarf
 CFLAGS_DEBUG 		= -O0 -g
 CFLAGS_RELEASE 		= -O2 -s -DNDEBUG 		# TODO yehor.pohuliaka - Add support Debug and Release configurations
-CFLAGS 				= ${CFLAGS_DEBUG} -c -ffreestanding -nostdlib -std=c99 -I./ -I${GEN_DIR}/ -DCPU_ARCH_I686
-LDFLAGS 			= -T link.ld -nostdlib
+CFLAGS 				= ${CFLAGS_DEBUG} -c -ffreestanding -mcmodel=large -nostdlib -std=c99 -I./ -I${GEN_DIR}/ -DCPU_ARCH_AMD64
+LDFLAGS 			= -T arch/i686/link64.ld -nostdlib -z max-page-size=0x1000
 LDLIBS 				= -lgcc
-QEMUFLAGS 			= -serial stdio -m 4g
+QEMUFLAGS 			= -serial stdio -m 4g # By defaul legacy BIOS; UEFI -> -bios /usr/share/ovmf/OVMF.fd
 QEMUFLAGS_DEBUG 	= ${QEMUFLAGS} -s -S -no-shutdown -no-reboot
-GRUB_MKRSCFLAGS 	= -d /usr/lib/grub/i386-pc
+
+# Other stuff
+CC_VERSION 			:= ${shell ${CC} --version 2>/dev/null}
 
 # Grab all source files
 C_SRC 				:= ${shell find . -name '*.c' -printf "%P\n"} ${C_GEN_FILES} 
@@ -42,7 +43,16 @@ ASM_SRC 			:= ${shell find . -name '*.asm' -printf "%P\n"}
 C_OBJS 				:= ${patsubst %.c, ${BUILD_DIR}/%.o, ${C_SRC}}
 ASM_OBJS 			:= ${patsubst %.asm, ${BUILD_DIR}/%.asm.o, ${ASM_SRC}}
 
-.PHONY: clean
+.PHONY: clean verifytools
+
+# Verify our tools
+verifytools:
+ifdef CC_VERSION
+	@echo "Toolchain: ${CC_VERSION}"
+else
+	@echo -e '\033[0;31m${CC} was not found! Please use "make tools" to compile the toolchain!\033[0m'
+	@exit 1
+endif
 
 # Generate code to build kernel (ISRs and other stuff)
 kernel_gencode:
@@ -50,7 +60,7 @@ kernel_gencode:
 	@${TOOLS_DIR}/kernel/generate_isrs.sh i686 ${C_ISRS_GEN_FILE} ${ASM_ISRS_GEN_FILE}
 
 # Build kernel
-kernel: kernel_gencode $(C_OBJS) $(ASM_OBJS)
+kernel: verifytools kernel_gencode $(C_OBJS) $(ASM_OBJS)
 	@mkdir -p ${TARGET_DIR}
 	@mkdir -p ${TARGET_DIR}/boot
 	${LINK} ${LDFLAGS} -o ${OUTPUT_KERNEL} ${C_OBJS} ${ASM_OBJS} ${LDLIBS}
@@ -66,12 +76,13 @@ ${BUILD_DIR}/%.asm.o: %.asm
 
 # Build disk image
 disk: kernel
-	${GRUB_MKRSC} ${GRUB_MKRSCFLAGS} -o ${TARGET_ISO} ${TARGET_DIR}
+	@chmod +x ${TOOLS_DIR}/kernel/make_disk.sh
+	@${TOOLS_DIR}/kernel/make_disk.sh ${TARGET_DIR} ${TARGET_ISO}
 
 # Build tools (autotools, binutils and gcc)
 tools:
 	@chmod +x ${TOOLS_DIR}/toolchain/compile_toolchain.sh
-	@${TOOLS_DIR}/toolchain/compile_toolchain.sh
+	@${TOOLS_DIR}/toolchain/compile_toolchain.sh x86_64
 
 # Run QEMU
 qemu: kernel
@@ -79,10 +90,13 @@ qemu: kernel
 
 # Run QEMU for debug
 qemu_dbg: kernel
-	${QEMU} ${QEMUFLAGS_DEBUG} -hda ${TARGET_ISO}
+	@chmod +x ${TOOLS_DIR}/debug/gdb.sh
+	${QEMU} ${QEMUFLAGS_DEBUG} -hda ${TARGET_ISO} & ${TOOLS_DIR}/debug/gdb.sh ${OUTPUT_KERNEL}
 
 # Clean
 clean:
+	@chmod +x ${TOOLS_DIR}/kernel/clean_disk.sh
+	@${TOOLS_DIR}/kernel/clean_disk.sh ${TARGET_DIR} ${TARGET_ISO}
+	@rm -rf ${OUTPUT_KERNEL}
 	@rm -rf ${GEN_DIR}
 	@rm -rf ${BUILD_DIR}
-	@rm -rf ${TARGET_ISO}

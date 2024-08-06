@@ -5,7 +5,7 @@
 
 // Interrupt Service Routine's registers
 // NOTE: In the reverse order they are pushed
-typedef struct
+typedef struct // TODO yehor.pohuliaka - Port to AMD64
 {
 	uint32_t 		ds; 											// Data segment pushed by us
 	uint32_t 		edi, esi, ebp, useless, ebx, edx, ecx, eax; 	// Pusha

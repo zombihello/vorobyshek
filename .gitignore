@@ -1,8 +1,11 @@
 # Binaries
 build/
 target/boot/*.bin
+target/EFI/
+target/boot/limine/*.sys
+target/boot/limine/*.bin
 *.iso
 
 # Ignore toolchain
 tools/toolchain/autotools/
-tools/toolchain/gcc/
+tools/toolchain/*-gcc/

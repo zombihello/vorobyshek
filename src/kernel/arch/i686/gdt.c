@@ -79,23 +79,37 @@ static gdtEntry_t 		s_GDT[] =
 	// NULL descriptor (Offset 0x00)
 	GDT_MAKE_ENTRY( 0, 0, 0, 0 ),
 
-	// Kernel 32-bit code segment (Offset 0x08)
+	// Kernel 32-bit/64-bit code segment (Offset 0x08)
 	GDT_MAKE_ENTRY( 
 			0,
 			0xFFFFF,
 			GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_CODE_SEGMENT | GDT_ACCESS_CODE_READABLE,
-			GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K ),
+#ifdef CPU_ARCH_I686
+			GDT_FLAG_32BIT
+#elif defined( CPU_ARCH_AMD64 )
+			GDT_FLAG_64BIT
+#else
+			#error Unknown CPU architecture
+#endif // CPU_ARCH_I686 || CPU_ARCH_AMD64
+			| GDT_FLAG_GRANULARITY_4K ),
 
-	// Kernel 32-bit data segment (Offset 0x10)
+	// Kernel 32-bit/64-bit data segment (Offset 0x10)
 	GDT_MAKE_ENTRY(
 			0,
 			0xFFFFF,
 			GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_DATA_SEGMENT | GDT_ACCESS_DATA_WRITEABLE,
-			GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K )
+#ifdef CPU_ARCH_I686
+			GDT_FLAG_32BIT
+#elif defined( CPU_ARCH_AMD64 )
+			GDT_FLAG_64BIT
+#else
+			#error Unknown CPU architecture
+#endif // CPU_ARCH_I686 || CPU_ARCH_AMD64
+	   		| GDT_FLAG_GRANULARITY_4K )
 };
 
 // GDT descriptor
-static gdtDescriptor_t 		s_GDTDescriptor = 
+gdtDescriptor_t 		g_GDTDescriptor = 
 {
 	.limit 	= sizeof( s_GDT ) - 1,
 	.pPtr 	= s_GDT
@@ -105,6 +119,7 @@ static gdtDescriptor_t 		s_GDTDescriptor =
 void i686_gdt_init()
 {
 	debugf( "[gdt] Initialize Global Descriptor Table\n" );
+#ifdef CPU_ARCH_I686
 	__asm__ __volatile__(
 			"lgdt %0\n\t" 							// Load GDT
 			"ljmp %1, $.reload_cs\n\t" 				// Do far jump to reload CS. At %1 we have kernel code segment (offset to GDT entry. [0] = 0, [1] = 0x08, [2] = 0x10, etc)
@@ -119,4 +134,25 @@ void i686_gdt_init()
 			: "m"( s_GDTDescriptor ), "i"( GDT_KERNEL_CODE_SEGMENT ), "i"( GDT_KERNEL_DATA_SEGMENT )
 			: "memory"
 			);
+#elif defined( CPU_ARCH_AMD64 )
+	__asm__ __volatile__(
+			"lgdt %0\n\t" 							// Load GDT
+			"push %1\n\t" 							// Push kernel code segment to stack (%1 here is offset to GDT entry. e.g: [0] = 0, [1] = 0x08, [2] = 0x10, etc)
+			"lea .reload_cs( %%rip ), %%rax\n\t" 	// Load address of .reload_cs into RAX
+			"push %%rax\n\t" 						// Push this value to the stack
+			"lretq\n\t" 							// Do a far return to reload CS
+			".reload_cs:\n\t" 						// Wehn we jump to here CS will be reloaded and after have to reload data segment registers
+				"mov %2, %%eax\n\t" 				// Push data segment (kernel data) to EAX
+				"mov %%eax, %%ds\n\t" 				// Reload segment register DS
+				"mov %%eax, %%es\n\t" 				// Reload segment register ES
+				"mov %%eax, %%fs\n\t" 				// Reload segment register FS
+				"mov %%eax, %%gs\n\t" 				// Reload segment register GS
+				"mov %%eax, %%ss\n\t" 				// Reload segment register SS
+			:
+			: "m"( g_GDTDescriptor ), "i"( GDT_KERNEL_CODE_SEGMENT ), "i"( GDT_KERNEL_DATA_SEGMENT )
+			: "rax", "memory"
+			);
+#else
+	#error Unknown CPU architecture
+#endif // CPU_ARCH_I686 || CPU_ARCH_AMD64
 }

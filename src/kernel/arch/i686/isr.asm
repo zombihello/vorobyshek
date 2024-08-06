@@ -24,6 +24,7 @@ i686_isr_stub_%1:
 ; NOTE: CPU pushes to the stack: SS, ESP, EFLAGS, CS, EIP
 extern i686_isr_handler 		; ISR handler in C
 i686_asm_isr_handler:
+	; TODO yehor.pohuliaka - This function need to port on AMD64
 	pusha 						; Pushes in order: EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
 	xor eax, eax 				; Push DS
 	mov ax, ds

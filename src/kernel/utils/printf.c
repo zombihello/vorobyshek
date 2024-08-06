@@ -43,7 +43,7 @@
 
 void putchar_( char c )
 {
-	console_put_char(c);
+	console_put_char( c );
 }
 // yehor.pohuliaka - END
 

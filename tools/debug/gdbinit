@@ -1,0 +1,4 @@
+set prompt \033[31m(gdb) \033[0m
+set disassembly-flavor intel
+
+target remote localhost:1234
