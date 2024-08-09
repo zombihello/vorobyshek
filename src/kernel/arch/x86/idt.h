@@ -1,5 +1,5 @@
-#ifndef ARCH_I868_IDT_H
-#define ARCH_I868_IDT_H
+#ifndef ARCH_X86_IDT_H
+#define ARCH_X86_IDT_H
 
 #include <stdint.h>
 
@@ -24,15 +24,15 @@ typedef enum
 } idtFlags_t;
 
 // Initialize Interrupt Descriptor Table
-void i686_idt_init();
+void x86_idt_init();
 
 // Enable gate of IDT entry
-void i686_idt_enable_gate( int interrupt );
+void x86_idt_enable_gate( int interrupt );
 
 // Disable gate of IDT entry
-void i686_idt_disable_gate( int interrupt );
+void x86_idt_disable_gate( int interrupt );
 
 // Set gate of IDT entry
-void i686_idt_set_gate( int interrupt, void* pFunc, uint16_t segmentDescriptor, uint8_t flags );
+void x86_idt_set_gate( int interrupt, void* pFunc, uint16_t segmentDescriptor, uint8_t flags );
 
-#endif // !ARCH_I868_IDT_H
+#endif // !ARCH_X86_IDT_H

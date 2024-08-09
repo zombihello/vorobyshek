@@ -1,5 +1,5 @@
-#ifndef ARCH_I686_PIC_H
-#define ARCH_I686_PIC_H
+#ifndef ARCH_X86_PIC_H
+#define ARCH_X86_PIC_H
 
 #include <stdint.h>
 
@@ -11,24 +11,24 @@
 
 // Programmable Interrupt Controller (PIC)
 // Initialize the PIC controllers
-void i686_pic_configure( uint8_t offsetPIC1, uint8_t offsetPIC2 );
+void x86_pic_configure( uint8_t offsetPIC1, uint8_t offsetPIC2 );
 
 // Send to the PIC controllers end of interrupt
-void i686_pic_send_eoi( int irq );
+void x86_pic_send_eoi( int irq );
 
 // Disable the PIC controllers
-void i686_pic_disable();
+void x86_pic_disable();
 
 // Set mask IRQ in the PIC controllers
-void i686_pic_set_mask( int irq );
+void x86_pic_set_mask( int irq );
 
 // Clear mask IRQ in the controllers
-void i686_pic_clear_mask( int irq );
+void x86_pic_clear_mask( int irq );
 
 // Returns the combined value of the cascaded PICs irq request register
-uint16_t i686_pic_get_irr();
+uint16_t x86_pic_get_irr();
 
 // Returns the combined value of the cascaded PICs in-service register
-uint16_t i686_pic_get_isr();
+uint16_t x86_pic_get_isr();
 
-#endif // !ARCH_I686_PIC_H
+#endif // !ARCH_X86_PIC_H

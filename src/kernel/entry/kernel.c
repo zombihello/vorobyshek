@@ -2,7 +2,7 @@
 #include "system/hal.h"
 #include "graphics/console.h"
 #include "utils/printf.h"
-#include "arch/i686/pic.h"
+
 void kernel_main()
 {	
 	// Initialize the system

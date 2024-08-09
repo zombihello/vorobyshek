@@ -6,6 +6,9 @@ target/boot/limine/*.sys
 target/boot/limine/*.bin
 *.iso
 
+# Ignore generated files
+src/kernel/__gen__/
+
 # Ignore toolchain
 tools/toolchain/autotools/
 tools/toolchain/*-gcc/

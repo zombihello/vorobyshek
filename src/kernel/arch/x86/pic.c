@@ -1,5 +1,5 @@
-#include "arch/i686/pic.h"
-#include "arch/i686/io.h"
+#include "arch/x86/pic.h"
+#include "arch/x86/io.h"
 #include "drivers/serial_port.h"
 
 // PIC1 and PIC2 ports
@@ -54,73 +54,56 @@ typedef enum
 
 // Initialize the PIC controllers, giving them specified vector offset
 // rather than 0x08 and 0x70, as configured by default
-void i686_pic_configure( uint8_t offsetPIC1, uint8_t offsetPIC2 )
+void x86_pic_configure( uint8_t offsetPIC1, uint8_t offsetPIC2 )
 {
 	debugf( "[pic] Initialize the PIC controllers (0x%X, 0x%X)\n", offsetPIC1, offsetPIC2 );
 
 	// Initialization Control Word 1
-	i686_outportb( PIC1_COMMAND_PORT, PIC_ICW1_ICW4 | PIC_ICW1_INITIALIZE ); 	// Starts the initialization sequence (in cascade mode)
-	i686_iowait();
-	i686_outportb( PIC2_COMMAND_PORT, PIC_ICW1_ICW4 | PIC_ICW1_INITIALIZE );
-	i686_iowait();
+	x86_outportb( PIC1_COMMAND_PORT, PIC_ICW1_ICW4 | PIC_ICW1_INITIALIZE ); 	// Starts the initialization sequence (in cascade mode)
+	x86_iowait();
+	x86_outportb( PIC2_COMMAND_PORT, PIC_ICW1_ICW4 | PIC_ICW1_INITIALIZE );
+	x86_iowait();
 
 	// Initialization Control Word 2 - the offsets
-	i686_outportb( PIC1_DATA_PORT, offsetPIC1 ); 		// Master PIC vector offset
-	i686_iowait();
-	i686_outportb( PIC2_DATA_PORT, offsetPIC2 ); 		// Slave PIC vector offset
-	i686_iowait();
+	x86_outportb( PIC1_DATA_PORT, offsetPIC1 ); 		// Master PIC vector offset
+	x86_iowait();
+	x86_outportb( PIC2_DATA_PORT, offsetPIC2 ); 		// Slave PIC vector offset
+	x86_iowait();
 
 	// Initialization Control Word 3
-	i686_outportb( PIC1_DATA_PORT, 0x04 ); 				// Tell PIC1 that it has a slave at IRQ4 (0000 0100)
-	i686_iowait();
-	i686_outportb( PIC2_DATA_PORT, 0x02 ); 				// Tell PIC2 its cascade identity (0000 0010)
-	i686_iowait();
+	x86_outportb( PIC1_DATA_PORT, 0x04 ); 				// Tell PIC1 that it has a slave at IRQ4 (0000 0100)
+	x86_iowait();
+	x86_outportb( PIC2_DATA_PORT, 0x02 ); 				// Tell PIC2 its cascade identity (0000 0010)
+	x86_iowait();
 
 	// Initialization Control Word 4
-	i686_outportb( PIC1_DATA_PORT, PIC_ICW4_8086 ); 	// Have the PICs use 8086 mode (and not 8080 mode)
-	i686_iowait();
-	i686_outportb( PIC2_DATA_PORT, PIC_ICW4_8086 );
-	i686_iowait();
+	x86_outportb( PIC1_DATA_PORT, PIC_ICW4_8086 ); 	// Have the PICs use 8086 mode (and not 8080 mode)
+	x86_iowait();
+	x86_outportb( PIC2_DATA_PORT, PIC_ICW4_8086 );
+	x86_iowait();
 
 	// Disable all PICs interrupts until they are enabled by the device driver
-	i686_pic_disable();
+	x86_pic_disable();
 }
 
-void i686_pic_send_eoi( int irq )
+void x86_pic_send_eoi( int irq )
 {
 	if ( irq >= 8 )
 	{
-		i686_outportb( PIC2_COMMAND_PORT, PIC_CMD_END_OF_INTERRUPT );
+		x86_outportb( PIC2_COMMAND_PORT, PIC_CMD_END_OF_INTERRUPT );
 	}
-	i686_outportb( PIC1_COMMAND_PORT, PIC_CMD_END_OF_INTERRUPT );
+	x86_outportb( PIC1_COMMAND_PORT, PIC_CMD_END_OF_INTERRUPT );
 }
 
-void i686_pic_disable()
+void x86_pic_disable()
 {
-	i686_outportb( PIC1_DATA_PORT, 0xFF );
-	i686_iowait();
-	i686_outportb( PIC2_DATA_PORT, 0xFF );
-	i686_iowait();
+	x86_outportb( PIC1_DATA_PORT, 0xFF );
+	x86_iowait();
+	x86_outportb( PIC2_DATA_PORT, 0xFF );
+	x86_iowait();
 }
 
-void i686_pic_set_mask( int irq )
-{
-	uint8_t 	port;
-	if ( irq < 8 )
-	{
-		port = PIC1_DATA_PORT;
-	}
-	else
-	{
-		port = PIC2_DATA_PORT;
-		irq -= 8;
-	}
-
-	uint8_t 	mask = i686_inportb( port );
-	i686_outportb( port, mask | ( 1 << irq ) );
-}
-
-void i686_pic_clear_mask( int irq )
+void x86_pic_set_mask( int irq )
 {
 	uint8_t 	port;
 	if ( irq < 8 )
@@ -133,28 +116,45 @@ void i686_pic_clear_mask( int irq )
 		irq -= 8;
 	}
 
-	uint8_t 	mask = i686_inportb( port );
-	i686_outportb( port, mask & ~( 1 << irq ) );
+	uint8_t 	mask = x86_inportb( port );
+	x86_outportb( port, mask | ( 1 << irq ) );
 }
 
-static uint16_t i686_pic_get_irq_register( int ocw3 )
+void x86_pic_clear_mask( int irq )
+{
+	uint8_t 	port;
+	if ( irq < 8 )
+	{
+		port = PIC1_DATA_PORT;
+	}
+	else
+	{
+		port = PIC2_DATA_PORT;
+		irq -= 8;
+	}
+
+	uint8_t 	mask = x86_inportb( port );
+	x86_outportb( port, mask & ~( 1 << irq ) );
+}
+
+static uint16_t x86_pic_get_irq_register( int ocw3 )
 {
 	// OCW3 to PIC CMD to get the register values.
 	// PIC2 is chained and repsresents IRQs 8-15.
 	// PIC1 is IRQs 0-7, with 2 being the chain
-	i686_outportb( PIC1_COMMAND_PORT, ocw3 );
-	i686_outportb( PIC2_COMMAND_PORT, ocw3 );
-	return ( i686_inportb( PIC2_COMMAND_PORT ) << 8 ) | i686_inportb( PIC1_COMMAND_PORT );
+	x86_outportb( PIC1_COMMAND_PORT, ocw3 );
+	x86_outportb( PIC2_COMMAND_PORT, ocw3 );
+	return ( x86_inportb( PIC2_COMMAND_PORT ) << 8 ) | x86_inportb( PIC1_COMMAND_PORT );
 }
 
-uint16_t i686_pic_get_irr()
+uint16_t x86_pic_get_irr()
 {
 	// Returns the combined value of the cascaded PICs irq request register
-	return i686_pic_get_irq_register( PIC_CMD_IRR );
+	return x86_pic_get_irq_register( PIC_CMD_IRR );
 }
 
-uint16_t i686_pic_get_isr()
+uint16_t x86_pic_get_isr()
 {
 	// Returns the combined value of the cascaded PICs in-service register
-	return i686_pic_get_irq_register( PIC_CMD_ISR );
+	return x86_pic_get_irq_register( PIC_CMD_ISR );
 }

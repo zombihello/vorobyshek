@@ -1,4 +1,4 @@
-#include "arch/i686/idt.h"
+#include "arch/x86/idt.h"
 #include "drivers/serial_port.h"
 
 // Entry of Interrupt Description Table
@@ -34,16 +34,16 @@ typedef struct
 } __attribute__( ( packed ) ) idtDescriptor_t;
 
 // Interrupt Descriptor Table
-idtEntry_t 			s_IDT[IDT_MAX_ENTRIES];
+static idtEntry_t 			s_IDT[IDT_MAX_ENTRIES];
 
 // IDT descriptor
-idtDescriptor_t 	s_IDTDescriptor =
+static idtDescriptor_t 		s_IDTDescriptor =
 {
 	.limit 	= sizeof( s_IDT ) - 1,
 	.pPtr 	= s_IDT
 };
 
-void i686_idt_set_gate( int interrupt, void* pFunc, uint16_t segmentDescriptor, uint8_t flags )
+void x86_idt_set_gate( int interrupt, void* pFunc, uint16_t segmentDescriptor, uint8_t flags )
 {
 	s_IDT[interrupt].isrLow 			= ( ( uintptr_t )pFunc ) & 0xFFFF;
 	s_IDT[interrupt].segmenSelector 	= segmentDescriptor;
@@ -61,17 +61,17 @@ void i686_idt_set_gate( int interrupt, void* pFunc, uint16_t segmentDescriptor, 
 #endif // CPU_ARCH_I686 || CPU_ARCH_AMD64
 }
 
-void i686_idt_enable_gate( int interrupt )
+void x86_idt_enable_gate( int interrupt )
 {
 	s_IDT[interrupt].flags |= IDT_FLAG_PRESENT;
 }
 
-void i686_idt_disable_gate( int interrupt )
+void x86_idt_disable_gate( int interrupt )
 {
 	s_IDT[interrupt].flags &= ~IDT_FLAG_PRESENT;
 }
 
-void i686_idt_init()
+void x86_idt_init()
 {
 	debugf( "[idt] Initialize Interrupt Descriptor Table\n" );
 	__asm__ __volatile__(
@@ -80,4 +80,5 @@ void i686_idt_init()
 			: "m"( s_IDTDescriptor )
 			: "memory"
 			);
+
 }

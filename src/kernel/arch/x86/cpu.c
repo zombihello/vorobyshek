@@ -1,4 +1,4 @@
-void i686_panic()
+void x86_panic()
 {
 	__asm__ __volatile__(
 			"cli\n\t"
@@ -6,14 +6,14 @@ void i686_panic()
 		   );
 }
 
-void i686_enable_interrupts()
+void x86_enable_interrupts()
 {
 	__asm__ __volatile__(
 			"sti\n\t"
 			);
 }
 
-void i686_disable_interrupts()
+void x86_disable_interrupts()
 {
 	__asm__ __volatile__(
 			"cli\n\t"

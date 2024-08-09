@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 #include "drivers/serial_port.h"
-#include "arch/i686/gdt.h"
+#include "arch/x86/gdt.h"
 
 // Entry of Global Descriptor Table
 typedef struct
@@ -116,7 +116,7 @@ gdtDescriptor_t 		g_GDTDescriptor =
 };
 
 // Initialize Global Descriptor Table
-void i686_gdt_init()
+void x86_gdt_init()
 {
 	debugf( "[gdt] Initialize Global Descriptor Table\n" );
 #ifdef CPU_ARCH_I686

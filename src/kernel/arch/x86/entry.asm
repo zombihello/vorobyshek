@@ -35,7 +35,7 @@ section .init.text
 	KERNEL_OFFSET_MEM 			equ 0xFFFFFF8000000000
 
 	; Kernel code and data segments in GDT
-	; NOTE: If you change it you also need to update same values in arch/i686/gdt.h
+	; NOTE: If you change it you also need to update same values in arch/x86/gdt.h
 	GDT_KERNEL_CODE_SEGMENT 	equ 0x08
 	GDT_KERNEL_DATA_SEGMENT 	equ 0x10
 
